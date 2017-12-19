@@ -19,34 +19,34 @@ const noop = () => {
 };
 
 @Component({
-	selector: 'app-tinymce',
-	template: '<div id="{{elementId}}"></div>',
-	providers: [
-		{
-			provide: NG_VALUE_ACCESSOR,
-			useExisting: forwardRef(() => TinymceComponent),
-			multi: true
-		}
-	]
+  selector: 'app-tinymce',
+  template: '<div id="{{elementId}}"></div>',
+  providers: [
+    {
+      provide: NG_VALUE_ACCESSOR,
+      useExisting: forwardRef(() => TinymceComponent),
+      multi: true
+    }
+  ]
 })
 export class TinymceComponent implements ControlValueAccessor, AfterViewInit, OnDestroy {
-	public elementId: string = 'tiny-'+Math.random().toString(36).substring(2);
-	public editor: any;
-	@Input() public config: TinymceOptions;
+  public elementId: string = 'tiny-'+Math.random().toString(36).substring(2);
+  public editor: any;
+  @Input() public config: TinymceOptions;
 
-	private onTouchedCallback: () => void = noop;
-	private onChangeCallback: (_: any) => void = noop;
-	private innerValue: string;
+  private onTouchedCallback: () => void = noop;
+  private onChangeCallback: (_: any) => void = noop;
+  private innerValue: string;
 
-	private mergedOptions: any;
-	constructor(
-		private zone: NgZone,
-		@Inject('TINYMCE_CONFIG') private options: TinymceOptions
-	) {
-		//
-	}
+  private mergedOptions: any;
+  constructor(
+    private zone: NgZone,
+    @Inject('TINYMCE_CONFIG') private options: TinymceOptions
+  ) {
+    //
+  }
 
-	ngAfterViewInit() {
+  ngAfterViewInit() {
         this.mergedOptions = Object.assign(new TinymceDefaultOptions(), this.options, this.config);
         this.mergedOptions.selector = '#' + this.elementId;
         this.mergedOptions.setup = editor => {
@@ -67,47 +67,49 @@ export class TinymceComponent implements ControlValueAccessor, AfterViewInit, On
         if (this.options.auto_focus) {
             this.mergedOptions.auto_focus = this.elementId;
         }
-		if (this.mergedOptions.baseURL) {
-			tinymce.baseURL = this.mergedOptions.baseURL;
-		}
-		tinymce.init(this.mergedOptions);
-	}
+    if (this.mergedOptions.baseURL) {
+      tinymce.baseURL = this.mergedOptions.baseURL;
+    }
+    tinymce.init(this.mergedOptions);
+  }
 
-	ngOnDestroy() {
-		tinymce.remove(this.editor);
-	}
+  ngOnDestroy() {
+    try {
+      tinymce.remove(this.editor);
+    } catch (e) {}
+  }
 
-	// get accessor
-	get value(): any {
-		return this.innerValue;
-	};
+  // get accessor
+  get value(): any {
+    return this.innerValue;
+  };
 
-	// set accessor including call the onchange callback
-	set value(v: any) {
-		if (v !== this.innerValue) {
-			this.innerValue = v;
-			this.zone.run(() => {
-				this.onChangeCallback(v);
-			});
+  // set accessor including call the onchange callback
+  set value(v: any) {
+    if (v !== this.innerValue) {
+      this.innerValue = v;
+      this.zone.run(() => {
+        this.onChangeCallback(v);
+      });
 
-		}
-	}
-	// From ControlValueAccessor interface
-	writeValue(value: any) {
-		if (value !== this.innerValue) {
-			this.innerValue = value;
-			if(!value) {
-				value = '';
-			}
-			this.editor && this.editor.initialized && this.editor.setContent(value);
-		}
-	}
+    }
+  }
+  // From ControlValueAccessor interface
+  writeValue(value: any) {
+    if (value !== this.innerValue) {
+      this.innerValue = value;
+      if(!value) {
+        value = '';
+      }
+      this.editor && this.editor.initialized && this.editor.setContent(value);
+    }
+  }
 
-	registerOnChange(fn: any) {
-		this.onChangeCallback = fn;
-	}
+  registerOnChange(fn: any) {
+    this.onChangeCallback = fn;
+  }
 
-	registerOnTouched(fn: any) {
-		this.onTouchedCallback = fn;
-	}
+  registerOnTouched(fn: any) {
+    this.onTouchedCallback = fn;
+  }
 }
