@@ -64,7 +64,10 @@ var TinymceComponent = /** @class */ (function () {
         tinymce.init(this.mergedOptions);
     };
     TinymceComponent.prototype.ngOnDestroy = function () {
-        tinymce.remove(this.editor);
+        try {
+            tinymce.remove(this.editor);
+        }
+        catch (e) { }
     };
     Object.defineProperty(TinymceComponent.prototype, "value", {
         // get accessor
