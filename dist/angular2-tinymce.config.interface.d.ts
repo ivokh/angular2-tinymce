@@ -1,6 +1,7 @@
 export interface TinymceOptions {
     plugins?: Array<string>;
     skin_url?: string;
+    branding?: boolean;
     selector?: string;
     setup?: any;
     init_instance_callback?: any;
